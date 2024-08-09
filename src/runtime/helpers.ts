@@ -1,6 +1,6 @@
 import { H3Event } from "h3";
 
-export function constructCallback(_import: any): (event: H3Event) => any {
+export function constructCallback(_import: any) {
     function callMethod(_class: any, method: string, event: H3Event) {
         if (_class[method]) {
             return _class[method](event)

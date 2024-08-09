@@ -1,8 +1,11 @@
 import { glob } from "fast-glob"
 import { constructCallback } from "./helpers"
-import { defineEventHandler, createRouter as _createRouter } from "h3"
+import { defineEventHandler } from "h3"
 import { normalize } from "pathe"
+import type { H3Event } from "h3"
 import consola from "consola"
+import { createRouter as _createRadix } from "radix3"
+import { createRouter as _createRouter, createApp } from "h3"
 
 
 async function findStoreFiles(location: string) {
@@ -25,8 +28,8 @@ async function findStoreFiles(location: string) {
 async function constructRouterCallbacks(file: string, route: string) {
     const withoutExt = file.split(".").at(0)
     const imports = await import(withoutExt)
-    const routes = new Map<string, any>()
-   
+    const routes = new Map<string, (event: H3Event) => any>()
+
     if (imports.default) {
         consola.info(`Adding class route: ${route}`)
         const callback = constructCallback(imports.default)
@@ -56,6 +59,7 @@ async function handler(base: string, file: string) {
 }
 
 async function createRouter(location: string) {
+    const radix = _createRadix()
     const router = _createRouter()
     const files = await findStoreFiles(location)
     const _routes = await Promise.allSettled(files.map((file: string) => handler(location, file)))
@@ -63,14 +67,15 @@ async function createRouter(location: string) {
         if (route.status === "fulfilled") {
             const { value } = route
             value.forEach((callback, route) => {
-                const _route = route.replace(/\[([a-zA-Z0-9]+)\]/g, ":$1")                
+                const _route = route.replace(/\[([a-zA-Z0-9]+)\]/g, ":$1")
+                radix.insert(_route, {})
                 router.use(_route, defineEventHandler(callback))
             })
         } else {
             console.error(route.reason)
         }
     })
-    return router
+    return { radix, router }
 }
 
 export default createRouter
