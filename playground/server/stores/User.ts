@@ -1,4 +1,4 @@
-class Users {
+export default class Users {
     get() {
         return 'users';
     }

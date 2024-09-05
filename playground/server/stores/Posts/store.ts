@@ -22,11 +22,11 @@ export async function postPosts(event: H3Event) {
 }
 
 
-export async function gunPosts(event: H3Event) {
+export async function putPosts(event: H3Event) {
     return {
         posts: [
             {
-                title: 'Haha',
+                title: 'Maya',
                 content: 'This is a test post'
             }
         ]

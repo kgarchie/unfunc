@@ -52,7 +52,6 @@ export default defineNuxtModule<ModuleOptions>({
 
       if (!path.startsWith(target)) return
       let {router, radix} = await createRouter(storesDir())
-      
       app.use(router)
       await _nuxt.callHook('builder:generateApp')
     })

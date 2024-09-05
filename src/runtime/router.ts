@@ -6,7 +6,7 @@ import type { H3Event } from "h3"
 import consola from "consola"
 import { createRouter as _createRadix } from "radix3"
 import { createRouter as _createRouter, createApp } from "h3"
-
+import imp from "import-fresh"
 
 async function findStoreFiles(location: string) {
     const patterns = [
@@ -27,8 +27,16 @@ async function findStoreFiles(location: string) {
 
 async function constructRouterCallbacks(file: string, route: string) {
     const withoutExt = file.split(".").at(0)
-    const imports = await import(withoutExt)
     const routes = new Map<string, (event: H3Event) => any>()
+
+    try{
+        var imports = await imp(withoutExt) as Record<string, any>
+    } catch (e) {
+        console.error(e)
+        return routes
+    }
+
+    console.table(imports)
 
     if (imports.default) {
         consola.info(`Adding class route: ${route}`)
